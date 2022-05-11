@@ -22,7 +22,7 @@ func GetAllTweets(c *gin.Context) {
 	tweets := []models.ScheduleTweet{}
 
 	db.Find(&tweets)
-	c.IndentedJSON(http.StatusOK, tweets)
+	c.JSON(http.StatusOK, tweets)
 }
 
 func GetTweetDetail(c *gin.Context) {
@@ -31,14 +31,14 @@ func GetTweetDetail(c *gin.Context) {
 
 	tweet := models.ScheduleTweet{}
 
-	if err := db.Where("id = ?", id).First(&tweet); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{
+	if err := db.First(&tweet, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
 			"error": "No tweet recorded with id: " + id,
 		})
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, tweet)
+	c.JSON(http.StatusOK, tweet)
 }
 
 // Schedule Tweet
@@ -47,7 +47,7 @@ func ScheduleTweet(c *gin.Context) {
 	db := c.MustGet("dbCon").(*gorm.DB)
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 		return
@@ -56,7 +56,7 @@ func ScheduleTweet(c *gin.Context) {
 	tweet := models.ScheduleTweet{Tweet: input.Tweet, ScheduleTime: input.ScheduleTime}
 	db.Create(&tweet)
 
-	c.IndentedJSON(http.StatusOK, tweet)
+	c.JSON(http.StatusOK, tweet)
 }
 
 // Update tweet
@@ -67,21 +67,21 @@ func UpdateTweet(c *gin.Context) {
 	id := c.Param("id")
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
 
-	if err := db.Where("id = ?", id).First(&tweet); err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{
+	if err := db.First(&tweet, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
 			"error": "No tweet recorded with id: " + id,
 		})
 		return
 	}
 
-	db.Model(&tweet).Updates(input)
-	c.IndentedJSON(http.StatusOK, tweet)
+	db.Model(&tweet).Updates(models.ScheduleTweet{Tweet: input.Tweet, ScheduleTime: input.ScheduleTime})
+	c.JSON(http.StatusOK, tweet)
 }
 
 // Delete tweet

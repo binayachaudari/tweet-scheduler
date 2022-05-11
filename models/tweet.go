@@ -3,7 +3,7 @@ package models
 import "time"
 
 type ScheduleTweet struct {
-	ID           int       `json:"id" uri:"id"`
+	ID           int       `json:"id"`
 	Tweet        string    `json:"tweet"`
 	IsPublished  bool      `json:"is_published"`
 	ScheduleTime time.Time `json:"scheduled_time"`

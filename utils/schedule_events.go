@@ -48,15 +48,18 @@ func (s Scheduler) checkScheduledEvents() []Event {
 
 // Call Listener: call event-listener of provided event
 func (s Scheduler) callListener(event Event) {
+	ch := make(chan bool)
 	tweet := models.ScheduleTweet{}
 
-	go events.Tweet(event.Tweet)
+	go events.Tweet(event.Tweet, ch)
 
-	if err := s.database.First(&tweet, event.ID).Error; err != nil {
-		log.Print("💀 error: ", err)
+	if <-ch {
+		if err := s.database.First(&tweet, event.ID).Error; err != nil {
+			log.Print("💀 error: ", err)
+		}
+
+		s.database.Delete(&tweet)
 	}
-
-	s.database.Delete(&tweet)
 }
 
 // CheckEventsInInterval checks the event in given interval

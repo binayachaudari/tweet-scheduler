@@ -86,5 +86,17 @@ func UpdateTweet(c *gin.Context) {
 
 // Delete tweet
 func DeleteTweet(c *gin.Context) {
+	db := c.MustGet("dbCon").(*gorm.DB)
+	tweet := models.ScheduleTweet{}
+	id := c.Param("id")
 
+	if err := db.First(&tweet, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "No tweet recored with id: " + id,
+		})
+		return
+	}
+
+	db.Delete(&tweet)
+	c.JSON(http.StatusOK, tweet)
 }

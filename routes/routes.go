@@ -7,13 +7,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func Routes(d *gorm.DB) *gin.Engine {
-	router := gin.Default()
-	router.Use(func(c *gin.Context) {
-		c.Set("dbCon", d)
-	})
-
-	v1 := router.Group("/api/v1")
+func RegisterRoutes(d *gorm.DB, eng *gin.Engine) *gin.Engine {
+	v1 := eng.Group("/api/v1")
 	{
 		v1.GET("/tweets", controller.GetAllTweets)
 		v1.GET("/tweets/:id", controller.GetTweetDetail)
@@ -22,5 +17,5 @@ func Routes(d *gorm.DB) *gin.Engine {
 		v1.DELETE("/tweets/:id", controller.DeleteTweet)
 	}
 
-	return router
+	return eng
 }

@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"go.uber.org/fx"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -33,3 +34,7 @@ func ConnectDB() *gorm.DB {
 
 	return db
 }
+
+var Module = fx.Options(
+	fx.Provide(ConnectDB),
+)
